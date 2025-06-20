@@ -93,6 +93,7 @@ X,Y=[-107141.963,-92168.828] # Figure_1
 X,Y=[-107110.014,-92262.408] # Figure 2
 X,Y=[-101416.832,-92411.277] # exemplo Aziza
 X,Y=[-101380,-92395] # exemplo Aziza, ao lado
+X,Y=[-100556.002,-93329.993] # exemplo segmento com um vertice 
 
 x0y0=convert_3763_XY_into_urban_closest_vertex(X,Y, urban_path)
 
@@ -182,6 +183,7 @@ if read:
                 'newvar': urb[NEWVAR],
                 'newvar2': urb[NEWVAR2]
             })
+        # idx_vert_urb takes values 1,2,3,.... AFTER removal of duplicates
         mat_urb=clean_and_reindex(mat_urb,"idx_part_urb","idx_vert_urb") # Remove duplicates
 
         # build datatables -- however they are going to be converted back to dataframe in 209-210 !!!
@@ -377,8 +379,11 @@ if True:
     # Remove first row:  artifact point x=bigN, y=bigN
     xyd = xyd[1:, :]
 
-    # remove buffered vertices
+    # remove buffered vertices (jun 2025)
     xyd = xyd[dt.f.buffered != 1, :]
+
+    # sort by idx_vert_u (necessary?)
+    xyd=xyd[:, :, dt.sort(dt.f.idx_vert_u)].copy()
 
     xyd[dt.f.d == POSVALUE, 'd'] = NEGVALUE # Replace POSVALUE with NEGVALUE for distances dF in the 'd' column
     xyd[dt.isna(dt.f.iF), 'iF'] = NEGVALUE # Replace NaN values in iF with NEGVALUE
@@ -472,7 +477,7 @@ if True:
 
     # Save to CSV
     if SAVE_XYD: 
-        VARS = ['x', 'y', 'vert_type', 'linkL', 'linkR', 'idx_feat_u',  'idx_part_u',  'interface', 'd']
+        VARS = ['x', 'y', 'vert_type', 'linkL', 'linkR', 'idx_vert_u',  'idx_part_u',  'interface', 'd']
         xydDT = xydDT[:, VARS]
         xydDT_df = xydDT.to_pandas()
         output_path33 = os.path.join(OUTPUT_FOLDER,FICHNAME_STEM+".csv")
