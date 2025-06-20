@@ -5,10 +5,12 @@ from qgis.PyQt.QtGui import QColor
 from pathlib import Path
 import csv
 import sys
+import os
 
 working_folder = Path(r'C:\temp\aziza\Direct_Indirect_Interface_V02\Direct_Indirect_Interface\Interface_Github\Output')  # <-- Update this path
+working_folder = Path(r'C:\Users\mlc\OneDrive\Documents\temp\interface_smos\interface_python\Interface_Github\Output')  # <-- Update this path# <-- Update this path
 filename='interface_K5_KF5_limiar105_maxtheta60_QT10_test-AR2019.csv'
-csv_path= folder/filename
+csv_path= working_folder/filename
 
 # 1. Clear all layers from the project
 project = QgsProject.instance()
@@ -89,42 +91,101 @@ print(latest_csv)
 
 sequences = []
 current_sequence = []
-current_type = None
+# moving current values
+type_ = None
+L_=None
+R_=None
+d_=None
+x_=None
+y_=None
 types=[]
-
 with open(latest_csv, newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         x = float(row['x'])
         y = float(row['y'])
-        linkL = int(row['linkL'])
-        linkR = int(row['linkR'])
-        vert_type = row['vert_type']
-
+        L = int(row['linkL'])
+        R = int(row['linkR'])
+        type = row['vert_type']
+        d = row['d']
         # If current_type is None, start a new sequence with this type
-        if current_type is None:
-            current_type = vert_type
-
+        if type_ is None: type_ = type
+        if L_ is None: L_ = L
+        if R_ is None: R_ = R
+        if d_ is None: d_ = d
+        if x_ is None: x_ = x
+        if y_ is None: y_ = y
         # If the current row matches the current sequence type and both links are 1
-        if vert_type == current_type and linkL == 1 and linkR == 1:
-            current_sequence.append((x, y))
+        if type == type_ and L == 1 and R == 1:
+            current_sequence.append((x, y))  
+            L_,R_,d_,x_,y_=L,R,d,x,y
+        elif (type != type_) and L == 1 and R == 1:
+            _x=(x+x_)/2
+            _y=(y+y_)/2
+            current_sequence.append((_x, _y))
+            L_,R_,d_,x_,y_,type_=L,R,d,_x,_y,type
         else:
             # If the sequence is broken, add it if it has at least 2 points
             if len(current_sequence) >= 2:
                 sequences.append(current_sequence)
-                types.append(str(current_type))
+                types.append(str(type_)) # type for the sequence
             current_sequence = []
-            current_type = None
+            type_ = None
             # If the new row is valid, start a new sequence
-            if linkL == 1 and linkR == 1:
+            if L == 1 and R == 1:
                 current_sequence.append((x, y))
-                current_type = vert_type
+                L_,R_,d_,x_,y_,type_=L,R,d,_x,_y,type
 
 # Add the last sequence if it's valid
 if len(current_sequence) >= 2:
     sequences.append(current_sequence)
-    types.append(str(current_type))
+    types.append(str(type_))
 
+if False: # works for pure types
+    sequences = []
+    current_sequence = []
+    type_ = None
+    L_=None
+    R_=None
+    d_=None
+    x_=None
+    y_=None
+    types=[]
+    with open(latest_csv, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            x = float(row['x'])
+            y = float(row['y'])
+            L = int(row['L'])
+            R = int(row['R'])
+            type = row['type']
+            d = row['d']
+            # If current_type is None, start a new sequence with this type
+            if type_ is None: type_ = type
+            if L_ is None: L_ = L
+            if R_ is None: R_ = R
+            if d_ is None: d_ = d
+            if x_ is None: x_ = x
+            if y_ is None: y_ = y
+            # If the current row matches the current sequence type and both links are 1
+            if type == type_ and L == 1 and R == 1:
+                current_sequence.append((x, y))
+            else:
+                # If the sequence is broken, add it if it has at least 2 points
+                if len(current_sequence) >= 2:
+                    sequences.append(current_sequence)
+                    types.append(str(type_))
+                current_sequence = []
+                type_ = None
+                # If the new row is valid, start a new sequence
+                if L == 1 and R == 1:
+                    current_sequence.append((x, y))
+                    type_ = type
+
+# Add the last sequence if it's valid
+if len(current_sequence) >= 2:
+    sequences.append(current_sequence)
+    types.append(str(type_))
 # 
 xyd = QgsVectorLayer("LineString?crs=EPSG:3763", "linestrings", "memory")
 provider = xyd.dataProvider()
