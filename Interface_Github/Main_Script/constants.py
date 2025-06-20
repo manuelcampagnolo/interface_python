@@ -1,7 +1,7 @@
 KDTREE_DIST_UPPERBOUND = 500 # Maximum distance for KDTree search
 d_box= 500 # defines BOX around central point to filter data (urb and flam) and create plots 
-K = 5 # Number of flammable neighbors to explore
-KF =5 # Number of urban neighbors of the flammable neighbors to explore 
+K = 40 # Number of flammable neighbors to explore
+KF =40 # Number of urban neighbors of the flammable neighbors to explore 
 limiar = 1.05 # Threshold for triangular inequality
 limiartheta = 60  # Largest angle to be eligible to protect
 QT = 5 # minimum contribution of one side to the triangle perimeter (%)
