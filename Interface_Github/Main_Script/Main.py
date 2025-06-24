@@ -94,6 +94,7 @@ X,Y=[-107110.014,-92262.408] # Figure 2
 X,Y=[-101416.832,-92411.277] # exemplo Aziza
 X,Y=[-101380,-92395] # exemplo Aziza, ao lado
 X,Y=[-100556.002,-93329.993] # exemplo segmento com um vertice 
+X,Y=[-97885.426,-88204.763] # outro local em Sintra
 
 x0y0=convert_3763_XY_into_urban_closest_vertex(X,Y, urban_path)
 
@@ -201,7 +202,7 @@ if read:
     # determining the K Flam neighbors up to distance D meters from each urban neighbor
     # Calculating the distance from each vertice of the urban polygons to each vertice within D meters  of the flammable polygons
     knn_idx,knn_dists=nearest_indices(mat_flam_dt,mat_urb_dt,k=K, return_distance=True,KDTREE_DIST_UPPERBOUND= KDTREE_DIST_UPPERBOUND,bigN=bigN) # neighbors urban X Flam
-    FICHNAME_STEM= f"interface_K{K}_KF{KF}_limiar{round(limiar * 100)}_maxtheta{limiartheta}_QT{QT}_{extraname}"
+    FICHNAME_STEM= f"interface_K{K}_KF{KF}_limiar{round(limiar * 100)}_theta{limiartheta}_QT{QT}_{extraname}_{round(x0)}_y_{round(y0)}_d_{d_box}"
     FICHNAME= FICHNAME_STEM+ ".pickle"
     fichs = glob.glob(os.path.join(OUTPUT_FOLDER, FICHNAME))
 
